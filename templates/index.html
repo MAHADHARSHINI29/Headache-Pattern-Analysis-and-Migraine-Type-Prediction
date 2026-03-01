@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AI-based Headache Pattern Analysis and Migraine Type Prediction System — early awareness and decision support tool.">
+    <title>Headache Pattern Analysis & Migraine Type Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- ── DISCLAIMER BANNER ────────────────────────────────────────────────── -->
+    <div class="disclaimer-banner">
+        <span class="disclaimer-icon">⚠️</span>
+        <span><strong>Medical Disclaimer:</strong> This tool is <u>NOT</u> for medical diagnosis. It is for
+            <strong>early awareness and decision support only</strong>. Always consult a qualified healthcare
+            professional.</span>
+    </div>
+
+    <!-- ── HEADER ────────────────────────────────────────────────────────────── -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-icon">🧠</div>
+            <h1>Headache Pattern Analysis</h1>
+            <p class="subtitle">AI-Powered Migraine Type Prediction System</p>
+            <p class="hero-desc">Enter your symptoms below to receive an AI-based assessment of your headache type with
+                probability scores and confidence analysis.</p>
+        </div>
+    </header>
+
+    <!-- ── MAIN FORM ─────────────────────────────────────────────────────────── -->
+    <main class="container">
+        <form id="prediction-form" novalidate>
+
+            <!-- Section 1: Demographics -->
+            <section class="form-section">
+                <div class="section-header">
+                    <span class="section-icon">👤</span>
+                    <h2>Demographics</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" min="10" max="80" value="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="Male">Male</option>
+                            <option value="Female" selected>Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Pain Characteristics -->
+            <section class="form-section">
+                <div class="section-header">
+                    <span class="section-icon">💢</span>
+                    <h2>Pain Characteristics</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="pain_intensity">Pain Intensity <span class="range-value"
+                                id="pain_intensity_val">5</span>/10</label>
+                        <input type="range" id="pain_intensity" name="pain_intensity" min="1" max="10" value="5"
+                            oninput="document.getElementById('pain_intensity_val').textContent=this.value">
+                    </div>
+                    <div class="form-group">
+                        <label for="pain_location">Pain Location</label>
+                        <select id="pain_location" name="pain_location">
+                            <option value="Unilateral">Unilateral (one side)</option>
+                            <option value="Bilateral">Bilateral (both sides)</option>
+                            <option value="Frontal">Frontal</option>
+                            <option value="Temporal">Temporal</option>
+                            <option value="Occipital">Occipital (back)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pain_quality">Pain Quality</label>
+                        <select id="pain_quality" name="pain_quality">
+                            <option value="Throbbing">Throbbing</option>
+                            <option value="Pulsating">Pulsating</option>
+                            <option value="Pressing" selected>Pressing</option>
+                            <option value="Stabbing">Stabbing</option>
+                            <option value="Dull">Dull</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration_hours">Duration (hours)</label>
+                        <input type="number" id="duration_hours" name="duration_hours" min="0.25" max="72" step="any"
+                            value="4">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Associated Symptoms -->
+            <section class="form-section">
+                <div class="section-header">
+                    <span class="section-icon">🩺</span>
+                    <h2>Associated Symptoms</h2>
+                </div>
+                <div class="form-grid checkbox-grid">
+                    <label class="toggle-card">
+                        <input type="checkbox" name="nausea" value="1">
+                        <span class="toggle-label">🤢 Nausea</span>
+                    </label>
+                    <label class="toggle-card">
+                        <input type="checkbox" name="vomiting" value="1">
+                        <span class="toggle-label">🤮 Vomiting</span>
+                    </label>
+                    <label class="toggle-card">
+                        <input type="checkbox" name="photophobia" value="1">
+                        <span class="toggle-label">💡 Light Sensitivity</span>
+                    </label>
+                    <label class="toggle-card">
+                        <input type="checkbox" name="phonophobia" value="1">
+                        <span class="toggle-label">🔊 Sound Sensitivity</span>
+                    </label>
+                    <label class="toggle-card">
+                        <input type="checkbox" name="aura_present" value="1" id="aura_checkbox">
+                        <span class="toggle-label">✨ Aura Present</span>
+                    </label>
+                    <label class="toggle-card">
+                        <input type="checkbox" name="visual_disturbance" value="1">
+                        <span class="toggle-label">👁️ Visual Disturbance</span>
+                    </label>
+                </div>
+                <div class="form-grid" id="aura_type_group" style="margin-top:1rem; display:none;">
+                    <div class="form-group">
+                        <label for="aura_type">Aura Type</label>
+                        <select id="aura_type" name="aura_type">
+                            <option value="None">None</option>
+                            <option value="Visual">Visual</option>
+                            <option value="Sensory">Sensory</option>
+                            <option value="Motor">Motor</option>
+                            <option value="Speech">Speech</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Triggers & Lifestyle -->
+            <section class="form-section">
+                <div class="section-header">
+                    <span class="section-icon">⚡</span>
+                    <h2>Triggers & Lifestyle</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="stress_level">Stress Level <span class="range-value"
+                                id="stress_val">5</span>/10</label>
+                        <input type="range" id="stress_level" name="stress_level" min="1" max="10" value="5"
+                            oninput="document.getElementById('stress_val').textContent=this.value">
+                    </div>
+                    <div class="form-group">
+                        <label for="sleep_hours">Sleep Hours</label>
+                        <input type="number" id="sleep_hours" name="sleep_hours" min="2" max="14" step="any" value="7">
+                    </div>
+                    <div class="form-group">
+                        <label for="physical_activity">Physical Activity Level</label>
+                        <select id="physical_activity" name="physical_activity">
+                            <option value="Sedentary">Sedentary</option>
+                            <option value="Light">Light</option>
+                            <option value="Moderate" selected>Moderate</option>
+                            <option value="Intense">Intense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="caffeine_intake">Caffeine Intake <span class="range-value"
+                                id="caff_val">2</span>/10</label>
+                        <input type="range" id="caffeine_intake" name="caffeine_intake" min="0" max="10" value="2"
+                            oninput="document.getElementById('caff_val').textContent=this.value">
+                    </div>
+                    <div class="form-group">
+                        <label for="alcohol_intake">Alcohol Intake <span class="range-value"
+                                id="alc_val">1</span>/10</label>
+                        <input type="range" id="alcohol_intake" name="alcohol_intake" min="0" max="10" value="1"
+                            oninput="document.getElementById('alc_val').textContent=this.value">
+                    </div>
+                    <div class="form-group">
+                        <label for="screen_time">Screen Time (hrs/day)</label>
+                        <input type="number" id="screen_time" name="screen_time" min="0" max="16" step="any" value="6">
+                    </div>
+                </div>
+                <div class="form-grid checkbox-grid" style="margin-top:1rem;">
+                    <label class="toggle-card">
+                        <input type="checkbox" name="weather_sensitivity" value="1">
+                        <span class="toggle-label">🌦️ Weather Sensitive</span>
+                    </label>
+                    <label class="toggle-card">
+                        <input type="checkbox" name="hormonal_factor" value="1">
+                        <span class="toggle-label">🧬 Hormonal Factor</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 5: Clinical -->
+            <section class="form-section">
+                <div class="section-header">
+                    <span class="section-icon">📋</span>
+                    <h2>Clinical History</h2>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="frequency_per_month">Headaches per Month</label>
+                        <input type="number" id="frequency_per_month" name="frequency_per_month" min="1" max="30"
+                            value="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="onset_pattern">Onset Pattern</label>
+                        <select id="onset_pattern" name="onset_pattern">
+                            <option value="Gradual" selected>Gradual</option>
+                            <option value="Sudden">Sudden</option>
+                            <option value="With warning signs">With warning signs</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="medication_response">Medication Response</label>
+                        <select id="medication_response" name="medication_response">
+                            <option value="Good">Good</option>
+                            <option value="Moderate" selected>Moderate</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid checkbox-grid" style="margin-top:1rem;">
+                    <label class="toggle-card">
+                        <input type="checkbox" name="family_history" value="1">
+                        <span class="toggle-label">👪 Family History of Headaches</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Submit Button -->
+            <button type="submit" class="predict-btn" id="predict-btn">
+                <span class="btn-icon">🔬</span>
+                <span class="btn-text">Analyze & Predict</span>
+            </button>
+        </form>
+
+        <!-- ── RESULTS ───────────────────────────────────────────────────────── -->
+        <div id="results" class="results-container" style="display:none;">
+            <div class="results-header">
+                <h2>🎯 Prediction Results</h2>
+            </div>
+
+            <!-- Predicted Class -->
+            <div class="prediction-card" id="prediction-card">
+                <div class="prediction-label">Predicted Headache Type</div>
+                <div class="prediction-value" id="predicted-class"></div>
+            </div>
+
+            <!-- Risk Assessment -->
+            <div class="risk-card" id="risk-card">
+                <div class="risk-header">
+                    <span class="risk-badge" id="risk-badge"></span>
+                    <span class="risk-confidence" id="risk-confidence"></span>
+                </div>
+                <p class="risk-explanation" id="risk-explanation"></p>
+            </div>
+
+            <!-- Probability Bars -->
+            <div class="probabilities-card">
+                <h3>📊 Probability Distribution</h3>
+                <div id="probability-bars"></div>
+            </div>
+
+            <!-- Feature Importance -->
+            <div class="features-card" id="features-card" style="display:none;">
+                <h3>🔍 Top Contributing Factors</h3>
+                <div id="feature-bars"></div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="result-disclaimer">
+                <p>⚠️ <strong>Important:</strong> This prediction is generated by a machine learning model for
+                    <strong>educational and awareness purposes only</strong>. It does not constitute medical advice,
+                    diagnosis, or treatment. Please consult a healthcare professional for proper evaluation.</p>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading-overlay" style="display:none;">
+            <div class="spinner"></div>
+            <p>Analyzing symptoms...</p>
+        </div>
+    </main>
+
+    <!-- ── FOOTER ────────────────────────────────────────────────────────────── -->
+    <footer>
+        <p>Headache Pattern Analysis & Migraine Type Prediction — B.Tech Final Year Project</p>
+        <p class="footer-sub">Built with Python, Scikit-learn & Flask | For educational purposes only</p>
+    </footer>
+
+    <!-- ── JAVASCRIPT ────────────────────────────────────────────────────────── -->
+    <script>
+        // Toggle aura type visibility
+        document.getElementById('aura_checkbox').addEventListener('change', function () {
+            document.getElementById('aura_type_group').style.display = this.checked ? 'grid' : 'none';
+            if (!this.checked) document.getElementById('aura_type').value = 'None';
+        });
+
+        // Form submission
+        document.getElementById('prediction-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            // Set unchecked checkboxes to 0
+            ['nausea', 'vomiting', 'photophobia', 'phonophobia', 'aura_present',
+                'visual_disturbance', 'weather_sensitivity', 'hormonal_factor', 'family_history'].forEach(name => {
+                    if (!formData.has(name)) formData.set(name, '0');
+                });
+
+            // Show loading
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('results').style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.success) {
+                    renderResults(data);
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Connection error: ' + err.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        function renderResults(data) {
+            // Prediction
+            document.getElementById('predicted-class').textContent = data.prediction;
+
+            // Risk
+            const risk = data.risk;
+            const badge = document.getElementById('risk-badge');
+            badge.textContent = risk.level;
+            badge.style.background = risk.color;
+            document.getElementById('risk-confidence').textContent = risk.confidence_pct + '% confidence';
+            document.getElementById('risk-explanation').textContent = risk.explanation;
+
+            // Probability bars
+            const barsContainer = document.getElementById('probability-bars');
+            barsContainer.innerHTML = '';
+            data.probabilities.forEach(p => {
+                const isMax = p.label === data.prediction;
+                barsContainer.innerHTML += `
+                <div class="prob-row ${isMax ? 'prob-highlight' : ''}">
+                    <div class="prob-label">${p.label}</div>
+                    <div class="prob-bar-bg">
+                        <div class="prob-bar-fill" style="width:${p.prob}%"></div>
+                    </div>
+                    <div class="prob-value">${p.prob}%</div>
+                </div>
+            `;
+            });
+
+            // Feature importance
+            if (data.top_features && data.top_features.length > 0) {
+                const featContainer = document.getElementById('feature-bars');
+                featContainer.innerHTML = '';
+                data.top_features.forEach(f => {
+                    featContainer.innerHTML += `
+                    <div class="feat-row">
+                        <div class="feat-name">${f.name.replace(/_/g, ' ')}</div>
+                        <div class="feat-bar-bg">
+                            <div class="feat-bar-fill" style="width:${f.importance}%"></div>
+                        </div>
+                        <div class="feat-value">${f.importance}%</div>
+                    </div>
+                `;
+                });
+                document.getElementById('features-card').style.display = 'block';
+            }
+
+            // Show results with animation
+            const results = document.getElementById('results');
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+
+</body>
+
+</html>
